@@ -11,6 +11,7 @@ typedef enum { RED, BLACK } rbt_colour;
 
 struct rbtnode {
     char *key;
+    unsigned int count; /* The number of times this key has been inserted */
     rbt_colour colour; 
     rbt left;
     rbt right;
@@ -98,7 +99,7 @@ static rbt_fix(rbt r) {
     return r;
 }
 
-rbt rbt_insert(rbt r, char *str) {
+static rbt insert(rbt r, char *str, int is_root) {
     int comparison;
 
     /* No inserting NULL values */
@@ -112,18 +113,31 @@ rbt rbt_insert(rbt r, char *str) {
         strcpy(r->key, str);
         r->left = NULL;
         r->right = NULL;
-        r->colour = RED; 
+        r->colour = RED;
+        r->count = 0;
     }
 
     comparison = strcmp(r->key, str);
 
     if (comparison > 0) {
-        r->left = rbt_insert(r->left, str);
-    } else if (comparison < 0) {
-        r->right = rbt_insert(r->right, str);
+        r->left = insert(r->left, str, 0);   /* The node is not the root of */
+    } else if (comparison < 0) {             /* the whole rbt, therefore */
+        r->right = insert(r->right, str, 0); /* is_root is equal to 0 */
+    } else /* comparison == 0 */ {
+        r->count++;
+    }
+
+    r = rbt_fix(r);
+    if (is_root) {
+        r->colour = BLACK;
     }
     
-    return rbt_fix(r);
+    return r;
+}
+
+rbt rbt_insert(rbt r, char *str) {
+    int is_root = 1; /* The current node is the root of the whole rbt */
+    return insert(r, str, is_root);
 }
 
 static rbt left_most(rbt r) {
