@@ -125,6 +125,6 @@ void visit(flexarray f, void func(char *item)) {
     int i;
 
     for (i = 0; i < f->itemcount; i++) {
-        func(f->items[0]);
+        func(f->items[i]);
     }
 }
