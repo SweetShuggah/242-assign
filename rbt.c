@@ -50,37 +50,49 @@ static rbt left_rotate(rbt r) {
     return r;
 }
 
+/**
+ * Removes consecutive reds below root (R).
+ */
 static rbt_fix(rbt r) {
 
-    if (IS_RED(r->left) && IS_RED(r->right)) {
-        if (IS_RED(r->left->left) || IS_RED(r->left->right) ||
-            IS_RED(r->right->left) || IS_RED(r->right->right)) {
-            r->colour = RED;
-            r->left->colour = BLACK;
-            r->right->colour = BLACK;
-        }
+    /* If both children and a grandchild are red, colour root red and children
+     * black. */
+    if (IS_RED(r->left) && IS_RED(r->right) &&
+        (IS_RED(r->left->left) || IS_RED(r->left->right) ||
+         IS_RED(r->right->left) || IS_RED(r->right->right))) {
+        r->colour = RED;
+        r->left->colour = BLACK;
+        r->right->colour = BLACK;
     }
 
-    if (IS_RED(r->left) && IS_BLACK(r->right)) {
-        if (IS_RED(r->left->left) || IS_RED(r->left->right)) {
-            if (IS_RED(r->left->right)) {
-                r->left = left_rotate(r->left);
-            }
-            r = right_rotate(r);
-            r->colour = BLACK;
-            r->right->colour = RED;
+    /* If the left child (A) is red, the right child (B) is black, and a left
+     * grandchild is red. */ 
+    if (IS_RED(r->left) && IS_BLACK(r->right) &&
+        (IS_RED(r->left->left) || IS_RED(r->left->right))) {
+        /* If the red grandchild is the right child of A, left rotate A. */
+        if (IS_RED(r->left->right)) {
+            r->left = left_rotate(r->left);
         }
+        /* Regardless of which of the children of A are red, right rotate the
+         * root (R), colour the new root black, and new child (R) red.  */
+        r = right_rotate(r);
+        r->colour = BLACK;
+        r->right->colour = RED;
     }
 
-    if (IS_RED(r->right) && IS_BLACK(r->left)) {
-        if (IS_RED(r->right->left) || IS_RED(r->right->right)) {
-            if (IS_RED(r->right->right)) {
-                r->right = right_rotate(r->right);
-            }
-            r = left_rotate(r);
-            r->colour = BLACK;
-            r->left->colour = RED;
+    /* If the right child (B) is red, the left child (A) is black, and a right
+     * grandchild is red. */ 
+    if (IS_RED(r->right) && IS_BLACK(r->left) &&
+        (IS_RED(r->right->left) || IS_RED(r->right->right))) {
+        /* If the red grandchild is the left child of B, right rotate B. */
+        if (IS_RED(r->right->left)) {
+            r->right = right_rotate(r->right);
         }
+        /* Regardless of which of the children of B are red, left rotate the
+         * root (R), colour the new root black, and new child (R) red.  */
+        r = left_rotate(r);
+        r->colour = BLACK;
+        r->left->colour = RED;
     }
     
     return r;
@@ -231,13 +243,6 @@ void rbt_inorder(rbt r, void f(char *str)) {
     if (r->left != NULL) {
         rbt_inorder(r->left, f);
     }
-
-    if (IS_RED(r))
-        col = "red:";
-    else if (IS_BLACK(r))
-        col = "black:";
-
-    printf("%-7s", col);
     
     f(r->key);
 
@@ -252,11 +257,7 @@ void rbt_preorder(rbt r, void f(char *str)) {
         return;
     }
 
-    if (IS_RED(r))
-        col = "red:";
-    else if (IS_BLACK(r))
-        col = "black:";
-
+    col = IS_RED(r) ? "red:" : "black:";
     printf("%-7s", col);
     
     f(r->key);
