@@ -11,16 +11,27 @@ typedef enum { RED, BLACK } rbt_colour;
 
 struct rbtnode {
     char *key;
-    unsigned int count; /* The number of times this key has been inserted */
     rbt_colour colour; 
     rbt left;
     rbt right;
 };
 
+/**
+ * Ensures that a new red-black tree is in the appropriate starting state.
+ *
+ * Returns: A new and empty red-black tree (NULL).
+ */
 rbt rbt_new() {
     return NULL;    
 }
 
+/**
+ * Right rotates a red-black tree.
+ *
+ * r: The red-black tree to be rotated.
+ *
+ * Returns: The rotated red-black tree.
+ */
 static rbt right_rotate(rbt r) {
     rbt temp;
 
@@ -36,6 +47,13 @@ static rbt right_rotate(rbt r) {
     return r;
 }
 
+/**
+ * Left rotates a red-black tree.
+ *
+ * r: The red-black tree to be rotated.
+ *
+ * Returns: The rotated red-black tree.
+ */
 static rbt left_rotate(rbt r) {
     rbt temp;
 
@@ -52,9 +70,13 @@ static rbt left_rotate(rbt r) {
 }
 
 /**
- * Removes consecutive reds below root (R).
+ * Fixes consecutive red violations in a red-black tree caused by insertion.
+ *
+ * r: The red-black tree to be fixed.
+ *
+ * Returns: The fixed red-black tree.
  */
-static rbt_fix(rbt r) {
+static rbt rbt_fix(rbt r) {
 
     /* If both children and a grandchild are red, colour root red and children
      * black. */
@@ -99,7 +121,15 @@ static rbt_fix(rbt r) {
     return r;
 }
 
-static rbt insert(rbt r, char *str, int is_root) {
+/**
+ * Inserts an item into a red-black tree.
+ *
+ * r: The red-black tree that the item will be inserted into.
+ * str: The item to be inserted.
+ *
+ * Returns: A reference to the red-black tree post-insertion.
+ */
+static rbt insert(rbt r, char *str) {
     int comparison;
 
     /* No inserting NULL values */
@@ -114,32 +144,41 @@ static rbt insert(rbt r, char *str, int is_root) {
         r->left = NULL;
         r->right = NULL;
         r->colour = RED;
-        r->count = 0;
-    }
-
-    comparison = strcmp(r->key, str);
-
-    if (comparison > 0) {
-        r->left = insert(r->left, str, 0);   /* The node is not the root of */
-    } else if (comparison < 0) {             /* the whole rbt, therefore */
-        r->right = insert(r->right, str, 0); /* is_root is equal to 0 */
-    } else /* comparison == 0 */ {
-        r->count++;
-    }
-
-    r = rbt_fix(r);
-    if (is_root) {
-        r->colour = BLACK;
+    } else {
+        comparison = strcmp(str, r->key);
+        if (comparison <= 0) {
+            r->left = insert(r->left, str);
+        }
+        if (comparison > 0) {
+            r->right = insert(r->right, str); 
+        }
     }
     
+    return rbt_fix(r);
+}
+
+/**
+ * Calls an insert method and then sets the root to black.
+ *
+ * r: The red-black tree that the item will be inserted into.
+ * str: The item to be inserted.
+ *
+ * Returns: A reference to the red-black tree post-insertion.
+ */
+rbt rbt_insert(rbt r, char *str) {
+    int height = 0;
+    r = insert(r, str);
+    r->colour = BLACK;
     return r;
 }
 
-rbt rbt_insert(rbt r, char *str) {
-    int is_root = 1; /* The current node is the root of the whole rbt */
-    return insert(r, str, is_root);
-}
-
+/**
+ * Returns a reference to the node with the smallest value in a red-black tree.
+ *
+ * r: The red-black tree to have the smallest node identified.
+ *
+ * Returns: A reference to the node with the smallest value.
+ */
 static rbt left_most(rbt r) {
     if (r->left == NULL) {
         return r;
@@ -148,24 +187,32 @@ static rbt left_most(rbt r) {
     return left_most(r->left);    
 }
 
+/**
+ * Deletes a node with a specified value from a red-black tree.
+ *
+ * r: The red-black tree to have a node deleted.
+ * str: The specified value of the node to be deleted.
+ *
+ * Returns: A reference to the red-black tree post-deletion.
+ */
 rbt rbt_delete(rbt r, char *str) {
     int comparison;
-    rbt store;
+    rbt rbt_temp;
     rbt successor;
-    char *temp;
+    char *key_temp;
 
     if (r == NULL || str == NULL) {
         return r;
     }
 
-    comparison = strcmp(r->key, str);
+    comparison = strcmp(str, r->key);
 
-    if (comparison > 0) {
+    if (comparison < 0) {
         r->left = rbt_delete(r->left, str);
         return r;
     }
 
-    if (comparison < 0) {
+    if (comparison > 0) {
         r->right = rbt_delete(r->right, str);
         return r;
     }
@@ -183,32 +230,39 @@ rbt rbt_delete(rbt r, char *str) {
     /* If node has only left child */
     if (r->right == NULL) {
         free(r->key);
-        store = r;
+        rbt_temp = r;
         r = r->left;
-        free(store);
+        free(rbt_temp);
         return r;
     }
 
     /* If node has only right child */
     if (r->left == NULL) {
         free(r->key);
-        store = r;
+        rbt_temp = r;
         r = r->right;
-        free(store);        
+        free(rbt_temp);        
         return r;
     }
 
     /* Node must have two children */
     successor = left_most(r->right);
-    temp = r->key; 
+    key_temp = r->key; 
     r->key = successor->key;
-    successor->key = temp;
-
+    successor->key = key_temp;
     r->right = rbt_delete(r->right, str);
 
     return r;
 }
 
+/**
+ * Identifies whether a red-black tree contains a specified value.
+ *
+ * r: The red-black tree the be searched.
+ * str: The value to be searched for.
+ *
+ * Returns: Whether the value is in the tree (non-zero) or not (zero).
+ */
 int rbt_search(rbt r, char *str) {
     int comparison;
     
@@ -216,13 +270,13 @@ int rbt_search(rbt r, char *str) {
         return 0;
     }
 
-    comparison = strcmp(r->key, str);
+    comparison = strcmp(str, r->key);
 
-    if (comparison > 0) {
+    if (comparison < 0) {
         return rbt_search(r->left, str);
     }
 
-    if (comparison < 0) {
+    if (comparison > 0) {
         return rbt_search(r->right, str);
     }
 
@@ -230,6 +284,13 @@ int rbt_search(rbt r, char *str) {
     return 1;
 }
 
+/**
+ * Frees all the memory that has been dynamically allocated to a red-black tree.
+ *
+ * r: The red-black tree to be freed.
+ *
+ * Returns: An empty red-black tree (NULL).
+ */
 rbt rbt_free(rbt r) {
     if (r == NULL) {
         return r;
@@ -248,6 +309,12 @@ rbt rbt_free(rbt r) {
     return NULL;
 }
 
+/**
+ * Performs an inorder traversal on a red-black tree.
+ * 
+ * r: The red-black tree to be traversed.
+ * f: A function that defines what happens to a node when it is visited.
+ */
 void rbt_inorder(rbt r, void f(char *str)) {
     char *col;
     if (r == NULL) {
@@ -265,6 +332,12 @@ void rbt_inorder(rbt r, void f(char *str)) {
     }
 }
 
+/**
+ * Performs an preorder traversal on a red-black tree.
+ * 
+ * r: The red-black tree to be traversed.
+ * f: A function that defines what happens to a node when it is visited.
+ */
 void rbt_preorder(rbt r, void f(char *str)) {
     char *col;
     if (r == NULL) {
