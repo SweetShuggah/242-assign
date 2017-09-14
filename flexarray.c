@@ -14,7 +14,7 @@ flexarray flexarray_new() {
     flexarray result = emalloc(sizeof *result);
     result->capacity = 2;
     result->itemcount = 0;
-    result->items = emalloc(result->capacity * sizeof result->items[0]); 
+    result->items = emalloc(result->capacity * sizeof result->items[0]);
     return result;
 }
 
@@ -53,7 +53,7 @@ static void insertion_sort(char **a, int n) {
 
         /* Move each item that is greater than key and left of position i
          * one position to the right */
-        while (j >= 0 && a[j] > strcmp(a[j], key) > 0) {
+        while (j >= 0 && strcmp(a[j], key) > 0) {
             a[j+1] = a[j];
             j--;
         }
@@ -63,10 +63,10 @@ static void insertion_sort(char **a, int n) {
     }
 }
 
-static void swap(char *x, char *y) {
-    char *temp = x;
-    x = y;
-    y = temp;
+static void swap(char **x, char **y) {
+    void *temp = *x;
+    *x = *y;
+    *y = temp;
 }
 
 static void quicksort(char **a, int n) {
