@@ -4,16 +4,36 @@
 #include "mylib.h"
 #include "rbt.h"
 
+/**
+ * rbt.c
+ *
+ * Group 28
+ * @author Nick Greene
+ * @author Connor McIntyre
+ *
+ * A red-black tree. Stores strings in a red-black tree structure, which means
+ * this tree is self-balancing.
+ */
+
+/**
+ * Macros to check the colour of a node.
+ */
 #define IS_BLACK(x) ((NULL == (x)) || (BLACK == (x)->colour))
 #define IS_RED(x) ((NULL != (x)) && (RED == (x)->colour))
 
+/**
+ * Enumerated type for the colour of a node.
+ */
 typedef enum { RED, BLACK } rbt_colour;
 
+/**
+ * Defines a rbt node.
+ */
 struct rbtnode {
-    char *key;
-    rbt_colour colour; 
-    rbt left;
-    rbt right;
+    char *key; /* The value stored in this node */
+    rbt_colour colour; /* The colour of this node */
+    rbt left; /* A pointer to the left child */
+    rbt right; /* A pointer to the right child */
 };
 
 /**
@@ -166,7 +186,6 @@ static rbt insert(rbt r, char *str) {
  * @return A reference to the red-black tree post-insertion.
  */
 rbt rbt_insert(rbt r, char *str) {
-    int height = 0;
     r = insert(r, str);
     r->colour = BLACK;
     return r;
@@ -316,7 +335,6 @@ rbt rbt_free(rbt r) {
  * @param f A function that defines what happens to a node when it is visited.
  */
 void rbt_inorder(rbt r, void f(char *str)) {
-    char *col;
     if (r == NULL) {
         return;
     }
