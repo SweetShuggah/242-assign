@@ -10,6 +10,11 @@ struct flexarrayrec {
     char **items;
 };
 
+/**
+ * Creates a new flexarray.
+ *
+ * @return a new empty flexarray.
+ */
 flexarray flexarray_new() {
     flexarray result = emalloc(sizeof *result);
     result->capacity = 2;
@@ -18,6 +23,12 @@ flexarray flexarray_new() {
     return result;
 }
 
+/**
+ * Adds a char array onto the end of a given flexarray.
+ *
+ * @param f is the flexarray that the char array will be added to.
+ * @param item in the char array that you wish to add.
+ */
 void flexarray_append(flexarray f, char *item) {
     if (item == NULL) {
         return;
@@ -34,6 +45,11 @@ void flexarray_append(flexarray f, char *item) {
     f->itemcount++;
 }
 
+/**
+ * Prints all the items in a given flexarray in the order they are in the array.
+ *
+ * @param f is the flexarray that is to be printed.
+ */
 void flexarray_print(flexarray f) {
     int i;
 
@@ -42,6 +58,14 @@ void flexarray_print(flexarray f) {
     }
 }
 
+/**
+ * A sorting algorithm to sort the items in a flexarray.
+ * Can also be used on any array of char arrays.
+ * Uses insertion sort.
+ *
+ * @param a is the array that will be sorted.
+ * @param n is the length of the array.
+ */
 static void insertion_sort(char **a, int n) {
     int i, j;
     char *key;
@@ -63,12 +87,27 @@ static void insertion_sort(char **a, int n) {
     }
 }
 
+/**
+ * Swaps the position of two char arrays.
+ * Used in sorting algorithms to swap positions.
+ *
+ * @param x the first char array that will be swapped.
+ * @param y the second char array that will be swapped.
+ */
 static void swap(char **x, char **y) {
     void *temp = *x;
     *x = *y;
     *y = temp;
 }
 
+/**
+ * A sorting algorithm to sort the items in a flexarray.
+ * Can also be used on any array of char arrays.
+ * Uses quick sort.
+ *
+ * @param a is the array that will be sorted.
+ * @param n is the length of the array.
+ */
 static void quicksort(char **a, int n) {
     char *pivot;
     int i, j;
@@ -95,11 +134,23 @@ static void quicksort(char **a, int n) {
     }
 }
 
+/**
+ * Calls a sorting function on a given flexarray.
+ * The flexarray will be sorted.
+ *
+ * @param f is the flexarray that will be sorted.
+ */
 void flexarray_sort(flexarray f) {
     quicksort(f->items, f->itemcount);
     insertion_sort(f->items, f->itemcount);
 }
 
+/**
+ * Unallocates the memory that a flexarray was using.
+ * Deletes the flexarray.
+ *
+ * @param f is the flexarray that will be deleted and have its memory freed.
+ */
 void flexarray_free(flexarray f) {
     int i;
     for (i = 0; i < f->itemcount; i++) {
@@ -109,6 +160,13 @@ void flexarray_free(flexarray f) {
     free(f);
 }
 
+/**
+ * Checks if a given item is in a given flexarray.
+ *
+ * @param f is the flexarray to be searched.
+ * @param item is a char array that is being searche for.
+ * @return 1 if the item is found, 0 otherwise.
+ */
 int is_present(flexarray f, char *item) {
     int i;
 
@@ -121,6 +179,13 @@ int is_present(flexarray f, char *item) {
     return 0; /* false */
 }
 
+/**
+ * Goes over each item in a flexarray and carries out a given function on the
+ * item.
+ *
+ * @param f is the flexarray to be iterated over.
+ * @param item is the name of the function that will be called.
+ */
 void visit(flexarray f, void func(char *item)) {
     int i;
 

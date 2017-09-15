@@ -4,6 +4,12 @@
 #include <ctype.h>
 #include "mylib.h"
 
+/**
+ * Allocates the requested memory and returns a pointer to it.
+ *
+ * @param s is the size of the memory block, in bytes.
+ * @return a pointer to the allocated memory.
+ */
 void *emalloc(size_t s) {
     void *result = malloc(s);
     
@@ -15,6 +21,16 @@ void *emalloc(size_t s) {
     return result;
 }
 
+/**
+ * Attempts to resize the memory block pointed to by p that was previously
+ * allocated.
+ *
+ * @param p This is the pointer to a memory block previously allocated
+ * to be reallocated.
+ * @param s This is the new size for the memory block, in bytes.
+ * @return This function returns a pointer to the newly allocated memory, 
+ *         or NULL if the request fails.
+ */
 void *erealloc(void *p, size_t s) {
     p = realloc(p, s);
 
@@ -26,6 +42,14 @@ void *erealloc(void *p, size_t s) {
     return p;
 }
 
+/**
+ * Reads a word from an InputStream and returns it as a char array.
+ *
+ * @param s a char array that the word will be read into.
+ * @param limit the maximum size of s.
+ * @param stream the InputStream that is being read.
+ * @return a char array of the word that was read in all lowercase.
+ */
 int getword(char *s, int limit, FILE *stream) {
     int c;
     char *w = s;
