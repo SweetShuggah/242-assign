@@ -35,6 +35,7 @@ void print(char *str) {
  *
  * @param argc A count of the command line arguments.
  * @param argv The array that holds the command line arguments.
+ * @return Termination for exit.
  */
 int main(int argc, char **argv) {
     char *optstring = "rs:pih"; /* Defines the charaters accepted as options */
