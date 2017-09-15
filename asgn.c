@@ -44,13 +44,16 @@ int main(int argc, char **argv) {
     int size = -1; /* Size of the htable, less than 1 sets to default (3877) */
     void *h; /* The hash table to hold the dictonary of containers */
     char word[80]; /* Stores the current word being read */
-    int i; /* An index variable for loops */
     FILE *dict; /* The dictonary of words to be stored in the hash table */
     int print_table = 0; /* Boolean that is 0 (false) by default */
     int print_time = 0; /* Boolean that is 0 (false) by default */
     clock_t fill_start, fill_end; /* Stores the time it takes to fill */
     clock_t search_start, search_end; /* Stores the time is takes to search */
     int unknown = 0; /* A count of the words not found in the hash table */
+
+    if (argc == 1) { /* No options or files */
+        return EXIT_FAILURE;
+    }
 
     while ((option = getopt(argc, argv, optstring)) != EOF) {
         switch (option) {
